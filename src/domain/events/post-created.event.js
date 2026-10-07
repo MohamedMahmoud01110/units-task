@@ -1,4 +1,4 @@
-export const POST_CREATED_TOPIC = 'post.created';
+export const POST_CREATED_TOPIC = "post.created";
 
 export const createPostCreatedEvent = (post) => ({
   type: POST_CREATED_TOPIC,

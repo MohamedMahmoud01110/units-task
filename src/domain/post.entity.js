@@ -1,4 +1,4 @@
-import { ValidationError } from './errors.js';
+import { ValidationError } from "./errors.js";
 
 const RULES = {
   title: { max: 120 },
@@ -22,18 +22,21 @@ export class Post {
 
     for (const [field, { max }] of Object.entries(RULES)) {
       const value = input[field];
-      if (typeof value !== 'string' || value.trim().length === 0) {
+      if (typeof value !== "string" || value.trim().length === 0) {
         details.push({ field, message: `${field} is required` });
         continue;
       }
       if (value.trim().length > max) {
-        details.push({ field, message: `${field} must be at most ${max} characters` });
+        details.push({
+          field,
+          message: `${field} must be at most ${max} characters`,
+        });
         continue;
       }
       clean[field] = value.trim();
     }
 
-    if (details.length) throw new ValidationError('Invalid post data', details);
+    if (details.length) throw new ValidationError("Invalid post data", details);
     return new Post(clean);
   }
 }
