@@ -30,11 +30,13 @@ export const createApp = ({
   app.get("/health", async (_req, res) => {
     const checks = await healthCheck();
     const ok = Object.values(checks).every(Boolean);
-    res.status(ok ? 200 : 503).json({
-      status: ok ? "ok" : "degraded",
-      uptime: process.uptime(),
-      checks,
-    });
+    res
+      .status(ok ? 200 : 503)
+      .json({
+        status: ok ? "ok" : "degraded",
+        uptime: process.uptime(),
+        checks,
+      });
   });
 
   app.use("/api/posts", createPostRoutes(controller));

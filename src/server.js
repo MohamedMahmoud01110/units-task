@@ -13,7 +13,11 @@ import { createApp } from "./app.js";
 await connectMongo(env.mongoUri);
 logger.info("MongoDB connected");
 
-
+const kafka = createKafka({
+  brokers: env.kafkaBrokers,
+  clientId: env.kafkaClientId,
+});
+const eventPublisher = new KafkaEventPublisher({ kafka, logger });
 
 const app = createApp({
   postRepository: new MongoPostRepository(),
