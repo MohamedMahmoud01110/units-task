@@ -1,0 +1,138 @@
+{
+  "info": {
+    "name": "Posts Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "postId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health check",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('status ok', () => pm.expect(pm.response.json().status).to.eql('ok'));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create post",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/posts",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"My first post\",\n  \"content\": \"Hello from Postman\",\n  \"author\": \"Ahmed\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.test('has id', () => pm.expect(body.id).to.be.a('string'));",
+              "pm.collectionVariables.set('postId', body.id);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Create post - invalid (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/api/posts",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"\",\n  \"content\": \"x\",\n  \"author\": \"y\"\n}"
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 400', () => pm.response.to.have.status(400));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get post by id",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/posts/{{postId}}" },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('same id', () => pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('postId')));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Get post - not found (404)",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/posts/000000000000000000000000"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 404', () => pm.response.to.have.status(404));"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "List posts (pagination)",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/posts?page=1&limit=10",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "posts"],
+          "query": [
+            { "key": "page", "value": "1" },
+            { "key": "limit", "value": "10" }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('has data and meta', () => { const b = pm.response.json(); pm.expect(b.data).to.be.an('array'); pm.expect(b.meta).to.have.property('total'); });"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
